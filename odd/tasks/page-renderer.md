@@ -42,6 +42,12 @@ Out of scope: Zod or deep prop validation, image assets under `public/`, and the
 - Branch: `feat/page-renderer`, stacked on `feat/cms-blocks` (no remote yet).
 - Strategy: `ask-on-risk` (default).
 - Forecast: about 550 authored lines. This is over the 400-line budget, so PR slicing is deferred until a remote exists.
+- Actual: 705 insertions and 11 deletions outside `odd/` (`git diff --shortstat feat/cms-blocks..HEAD`), about half of it tests.
+- Commits:
+  - `8f1ee45` feat(data): add parseBlocks CMS boundary and domain block-type guard
+  - `b126fbc` feat(renderer): add BlockErrorBoundary
+  - `12760a9` feat(renderer): add PageBuilder with per-block error isolation
+  - `2a858ec` feat(app): render the CMS home page through PageBuilder
 - RDD: unavailable. `gentle-ai` 1.49.0 has no `review` command.
 
 ## Tasks
@@ -86,4 +92,10 @@ Out of scope: Zod or deep prop validation, image assets under `public/`, and the
 
 ## Next step
 
-T1.
+All tasks are done. Decisions for the user:
+
+- Build-time behavior: corrupted bundled CMS data fails `next build` by Next.js design. Keep that as a safety net, or render the page at request time (dynamic or ISR) if a broken block must never block a deploy.
+- Browser check: confirm in a real browser that a corrupted block shows the dev alert after hydration.
+- `AGENTS.md`: `next dev` 16.4 writes it to the repo root on every start. The copy made during T3 was deleted, uncommitted. Commit it, or set `agentRules: false` in `next.config`.
+- Delivery: slice into PRs once a remote exists, since the branch is over the 400-line budget.
+- Engram mirror: still pending.
