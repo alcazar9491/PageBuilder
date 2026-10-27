@@ -45,7 +45,7 @@ Out of scope: `PageBuilder`, `BlockErrorBoundary`, the data parser, and image fi
 - [x] T3: `PricingBlock`, test-first. Route: delegated.
 - [x] T4: `getStockBadge` and `ProductGridBlock`, test-first. Route: delegated.
 - [x] T5: `UnknownBlock`, with dev and production behavior, test-first. Route: delegated.
-- [ ] T6: `registry.ts` (typed map, `resolveBlock`, prototype-key guard, type-level tests). Route: delegated.
+- [x] T6: `registry.ts` (typed map, `resolveBlock`, prototype-key guard, type-level tests). Route: delegated.
 
 ## Acceptance criteria
 
@@ -64,7 +64,9 @@ Out of scope: `PageBuilder`, `BlockErrorBoundary`, the data parser, and image fi
 - T3: RED: 13/13 failed against stubs (`expected '' to be 'pricing-simple-pricing'`; `Unable to find an accessible element with the role "region" and name "Simple pricing"`). GREEN: 13/13 pass. Added `headingId.ts` (title-derived `aria-labelledby` ids, since blocks cannot call `useId`).
 - T4: RED: 17/17 failed against stubs (`expected { variant: 'neutral', label: '' } to deeply equal { variant: 'success', …(1) }`; `Unable to find an accessible element with the role "region" and name "Featured products"`). GREEN: 17/17 pass; `pnpm typecheck` clean.
 - T5: RED: 3/3 failed against a stub rendering an empty `role="status"` (`toHaveTextContent()` received empty text; `toBeEmptyDOMElement()` failed in production). GREEN: 3/3 pass (`development`, `test`, `production` via `vi.stubEnv`).
+- T6: RED (runtime): 11/24 failed against a loose stub (`expected [Function Placeholder] to be [Function HeroBlock]`; `expected false to be true`); the other 13 are rejection cases, the keys check and type-only cases. RED (types): `pnpm typecheck` failed with 4 × TS2344 on `expectTypeOf` and 3 × TS2578 `Unused '@ts-expect-error' directive`. GREEN: 24/24 pass and `pnpm typecheck` is clean; TS 7 accepts the `resolveBlock` overloads as specified.
+- Full checks after T6: `pnpm test` 112 passed (14 files); `pnpm typecheck` clean; `pnpm build` compiled and prerendered `/` and `/_not-found`.
 
 ## Next step
 
-T6.
+Record the commit hashes.
