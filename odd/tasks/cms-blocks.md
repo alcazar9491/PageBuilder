@@ -44,7 +44,7 @@ Out of scope: `PageBuilder`, `BlockErrorBoundary`, the data parser, and image fi
 - [x] T2: `CtaLink` and `HeroBlock`, test-first. Route: delegated.
 - [x] T3: `PricingBlock`, test-first. Route: delegated.
 - [x] T4: `getStockBadge` and `ProductGridBlock`, test-first. Route: delegated.
-- [ ] T5: `UnknownBlock`, with dev and production behavior, test-first. Route: delegated.
+- [x] T5: `UnknownBlock`, with dev and production behavior, test-first. Route: delegated.
 - [ ] T6: `registry.ts` (typed map, `resolveBlock`, prototype-key guard, type-level tests). Route: delegated.
 
 ## Acceptance criteria
@@ -63,7 +63,8 @@ Out of scope: `PageBuilder`, `BlockErrorBoundary`, the data parser, and image fi
 - T2: RED: 10/10 failed against `null` stubs (`Unable to find an accessible element with the role "heading" and name "Build pages without shipping code"`). GREEN: 10/10 pass; `next/image` and `next/link` render in jsdom without mocks.
 - T3: RED: 13/13 failed against stubs (`expected '' to be 'pricing-simple-pricing'`; `Unable to find an accessible element with the role "region" and name "Simple pricing"`). GREEN: 13/13 pass. Added `headingId.ts` (title-derived `aria-labelledby` ids, since blocks cannot call `useId`).
 - T4: RED: 17/17 failed against stubs (`expected { variant: 'neutral', label: '' } to deeply equal { variant: 'success', …(1) }`; `Unable to find an accessible element with the role "region" and name "Featured products"`). GREEN: 17/17 pass; `pnpm typecheck` clean.
+- T5: RED: 3/3 failed against a stub rendering an empty `role="status"` (`toHaveTextContent()` received empty text; `toBeEmptyDOMElement()` failed in production). GREEN: 3/3 pass (`development`, `test`, `production` via `vi.stubEnv`).
 
 ## Next step
 
-T5.
+T6.
