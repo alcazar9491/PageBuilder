@@ -1,0 +1,18 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: page-builder:local
+    ports:
+      - "3000:3000"
+    # Runs an init process as PID 1 so signals reach Node and zombies are reaped.
+    init: true
+    restart: unless-stopped
+    healthcheck:
+      # 127.0.0.1 rather than localhost, which may resolve to ::1 inside the container.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s

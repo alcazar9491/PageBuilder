@@ -1,0 +1,33 @@
+# dependencies and build output
+node_modules
+.next
+out
+build
+coverage
+*.tsbuildinfo
+
+# VCS and tooling
+.git
+.gitignore
+.gitattributes
+.atl
+odd
+.vscode
+.idea
+
+# tests
+**/*.test.ts
+**/*.test.tsx
+vitest.config.mts
+vitest.setup.ts
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# env files (never bake secrets into an image) and logs
+.env*
+!.env.example
+*.log
+*.md
