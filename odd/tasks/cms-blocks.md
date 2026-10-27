@@ -66,7 +66,26 @@ Out of scope: `PageBuilder`, `BlockErrorBoundary`, the data parser, and image fi
 - T5: RED: 3/3 failed against a stub rendering an empty `role="status"` (`toHaveTextContent()` received empty text; `toBeEmptyDOMElement()` failed in production). GREEN: 3/3 pass (`development`, `test`, `production` via `vi.stubEnv`).
 - T6: RED (runtime): 11/24 failed against a loose stub (`expected [Function Placeholder] to be [Function HeroBlock]`; `expected false to be true`); the other 13 are rejection cases, the keys check and type-only cases. RED (types): `pnpm typecheck` failed with 4 × TS2344 on `expectTypeOf` and 3 × TS2578 `Unused '@ts-expect-error' directive`. GREEN: 24/24 pass and `pnpm typecheck` is clean; TS 7 accepts the `resolveBlock` overloads as specified.
 - Full checks after T6: `pnpm test` 112 passed (14 files); `pnpm typecheck` clean; `pnpm build` compiled and prerendered `/` and `/_not-found`.
+- Size: 1,035 authored lines under `src/` (components 437, tests 598), against the 850 forecast. Tests grew most. PR slicing is still deferred until a remote exists.
+
+### Commits
+
+| Task | Commit | Message |
+| --- | --- | --- |
+| T1 | `59a5a8b` | `feat(blocks): add formatMoney helper` |
+| T2 | `083ab8b` | `feat(blocks): add HeroBlock and CtaLink` |
+| T3 | `36bc6db` | `feat(blocks): add PricingBlock` |
+| T4 | `f427f2f` | `feat(blocks): add ProductGridBlock with stock badges` |
+| T5 | `650a895` | `feat(blocks): add UnknownBlock fallback` |
+| T6 | `8d324f6` | `feat(blocks): add typed block registry with UnknownBlock fallback` |
+
+### Accepted changes beyond the brief
+
+- `headingId.ts`: `toHeadingId(prefix, title)` derives the `aria-labelledby` ids, because hook-free blocks cannot call `useId`. Two blocks with the same prefix and title on one page would share an id. If that becomes possible, the renderer should pass the CMS block id.
+- `DISPLAY_LOCALE` is exported from `format.ts`, so `ProductGridBlock` formats ratings and review counts with the same fixed locale.
+- Pricing plans render as a `<ul>` of cards, which follows the "lists use `<ul>`/`<li>`" rule. The "/month" suffix is `aria-hidden`, with `sr-only` "per month" for screen readers.
+- `CtaLink.test.tsx` covers the `CtaVariant` to `ButtonVariant` mapping directly.
 
 ## Next step
 
-Record the commit hashes.
+Feature `page-builder-renderer`: `PageBuilder` renders `page.blocks` through `resolveBlock`, maps `UnknownBlock` domain entries (`originalType`) to the fallback, and wraps each block in `BlockErrorBoundary`. Then wire `src/app/page.tsx` to the data layer. Sync the Engram mirror `odd/cms-blocks/tasks` when the server is reachable.
