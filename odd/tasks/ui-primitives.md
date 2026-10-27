@@ -61,7 +61,19 @@ Out of scope: blocks, registry, renderer, data parser.
 - T4: RED (`Failed to resolve import "@/components/ui/Button"`), GREEN (16 `Button` tests passed, 30 total, no React warnings). `pnpm typecheck` clean. Radix `Slot` only uses `useCallback` (via `useComposedRefs`), which the React server build provides, so `asChild` stays Server Component safe. Slot joins a child's own `className` without `tailwind-merge`, so pass overrides through `Button`'s `className`.
 - T5: RED (`Failed to resolve import "@/components/ui/Card"`), GREEN (10 `Card` tests passed, 40 total). `pnpm typecheck` clean.
 - RSC check (temporary, not committed): a server `page.tsx` rendering `Card` (dot notation), `Badge` and `Button asChild` around `next/link` built and prerendered as static; the HTML holds `<a class="inline-flex ... bg-indigo-600 ..." href="/signup">` with no `type`.
+- RED note: every RED was a failed import of the not-yet-written module, observed before the implementation existed.
+- Size: about 720 authored lines across the five task commits (lockfile excluded), over the 400-line budget as forecast. Slicing stays deferred until a remote and a PR exist.
+
+### Commits
+
+| Task | Commit | Message |
+| --- | --- | --- |
+| T1 | `4874f9c` | `chore(tooling): scaffold Next.js, Tailwind v4 and Vitest` |
+| T2 | `fadadea` | `feat(ui): add cn class merging utility` |
+| T3 | `b0e8afc` | `feat(ui): add Badge primitive` |
+| T4 | `4d13ca6` | `feat(ui): add Button primitive with asChild support` |
+| T5 | `4cf174b` | `feat(ui): add Card compound component` |
 
 ## Next step
 
-Record task commit hashes.
+All tasks are done. Next: resynchronize the Engram mirror (`odd/ui-primitives/tasks`) once the server is reachable, then decide on delivery (add a remote, then open one PR or a chain, following `ask-on-risk`). After that, start the blocks feature (`Hero`, `Pricing`, `ProductGrid`), which maps domain values such as `StockLevel` onto these primitives.
