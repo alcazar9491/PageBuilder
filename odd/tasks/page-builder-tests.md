@@ -50,7 +50,7 @@ Out of scope:
 
 - [x] T1: Harden `PageBuilder` against malformed entries and raw unregistered types, test-first. Route: delegated (test/build execution).
 - [x] T2: Reorganize and expand `PageBuilder.test.tsx` into the four sections, with mutation checks. Route: delegated.
-- [ ] T3: Coverage provider and `test:coverage` script. Route: delegated.
+- [x] T3: Coverage provider and `test:coverage` script. Route: delegated.
 
 ## Acceptance criteria
 
@@ -118,6 +118,21 @@ Out of scope:
 
 - GREEN after restoring: `pnpm test` 19 files, 212 tests passed. `pnpm typecheck` passed.
 
+### T3: Coverage
+
+- `@vitest/coverage-v8` is pinned at exactly `5.0.5`, matching `vitest`. The lockfile only adds the coverage tree.
+- `vitest.config.mts` gains `test.coverage`:
+  - `provider: 'v8'`;
+  - `include: ['src/**/*.{ts,tsx}']`;
+  - `exclude`: test files, `src/app/layout.tsx` and `.d.ts` files;
+  - `reporter: ['text', 'html']`.
+- Script: `"test:coverage": "vitest run --coverage"`. `coverage/` is already ignored (`.gitignore:14 /coverage`, checked with `git check-ignore`).
+- `pnpm test:coverage`: 19 files, 212 tests passed.
+  - `src/components/renderer/PageBuilder.tsx`: 100% statements, branches, functions and lines.
+  - All files: 98.01% statements (99/101), 98.71% branches (77/78), 100% functions (44/44), 98.01% lines (99/101).
+  - The only gap is `stockBadge.ts` lines 20-21: the exhaustive `never` default, which the compiler makes unreachable. `cms.ts` is types only (0/0).
+- Note: Vitest 5 detects AI-agent sessions (`AI_AGENT`, `CLAUDECODE`) and then forces `skipFull: true` on the `text` reporter, which hides fully covered files such as `PageBuilder.tsx`. In a normal terminal the table lists every file. The numbers above come from a run with those variables unset.
+
 ## Next step
 
-T3.
+Final checks and evidence commit.
