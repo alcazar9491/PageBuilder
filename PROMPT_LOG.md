@@ -26,8 +26,11 @@ All prompts ran in **Claude Code** with **Claude Opus 5.5**, from 2026-10-26 to 
 | 3 | Claude Code | Build the `HeroBlock`, `PricingBlock`, `ProductGridBlock` and `UnknownBlock` components and a resolution registry. | Blocks composed from the primitives, plus a typed registry with an `UnknownBlock` fallback. `slider` is left unregistered on purpose. | `59a5a8b`…`38f9d7b` |
 | 4 | Claude Code | Add a rendering engine (`PageBuilder`) with a per-block `BlockErrorBoundary`, and wire `src/app/page.tsx`. | `parseBlocks` as the single point where CMS data is validated, a per-block boundary plus `Suspense`, and the home page rendered from `data.json`. | `8f1ee45`…`1428714` |
 | 5 | Claude Code | Write a full Vitest + Testing Library suite for `PageBuilder`. | 36 `PageBuilder` tests in four sections, two renderer bugs fixed, and v8 coverage. | `5408523`…`839ee6b` |
-| 6 | Claude Code | Add Docker deployment: standalone output, a multi-stage Alpine `Dockerfile`, Compose and `.dockerignore`. | Standalone server verified locally. The container image is not verified yet. | `e4e1b7c` |
-| 7 | Claude Code | Write this prompt log. | `PROMPT_LOG.md` | this commit |
+| 6 | Claude Code | Add Docker deployment: standalone output, a multi-stage Alpine `Dockerfile`, Compose and `.dockerignore`. | Standalone server verified locally. Later, `docker compose up --build` built a 288 MB image; the container reported `healthy`, ran as `nextjs` and served the hero, pricing and product grid with HTTP 200. | `e4e1b7c` |
+| 7 | Claude Code | Write this prompt log. | `PROMPT_LOG.md` | `9071eb2` |
+| 8 | Claude Code | Check the project against the assignment. | All four requirements met; three submission gaps found (unbuilt image, summarized prompts, empty `main`). | none |
+| 9 | Claude Code | Publish the repository to GitHub. | Public repository, `main` fast-forwarded to the latest work, all branches pushed. | none |
+| 10 | Claude Code | Close the open gaps. | Docker image built and run (see row 6), and the full prompt text below. | this commit |
 
 ### Where the result differs from the prompt
 
@@ -41,6 +44,188 @@ The deviations below are intentional and were discussed during the session. Each
 | 4 | An error boundary per block | Boundary **plus** `<Suspense>` per block | Error boundaries do not run during server rendering (details below). |
 | 5 | Configuration in `vitest.config.ts` | `vitest.config.mts`, already present | It is the same config file; `.mts` forces Node to load it as an ES module. |
 | 6 | `next.config.js` | `next.config.ts` | This is a TypeScript project, and Next 16 reads the `.ts` file directly with its `NextConfig` type. |
+
+### Full prompt text
+
+Each prompt is copied verbatim from the Claude Code session transcripts, typos included. The numbers match the table above. Answers given to Claude's clarifying questions are noted under the prompt they belong to.
+
+#### 1. Project structure and CMS contracts
+
+```text
+Act as a Staff Frontend Engineer specializing in Next.js (App Router), TypeScript, and Clean Architecture.
+
+I want to structure a modular project for a "Dynamic Page Renderer" powered by a headless CMS.
+I need:
+1. A folder structure under `src/` that separates:
+- Domain Layer / Types (`domain/`): strict contracts and interfaces for CMS blocks and the props for each block type. 
+- Presentation Layer / Components (`components/`):
+- `ui/`: composition primitives (Card, Button, Badge). 
+- `blocks/`: specific blocks (`Hero`, `Pricing`, `ProductGrid`, `UnknownBlock`) and a registry map (`registry.ts`). 
+- `renderer/`: `PageBuilder.tsx` and its corresponding `BlockErrorBoundary.tsx`. 
+- Data Layer (`data/`): where `data.json` will reside.
+2. A TypeScript types file (`src/domain/cms.ts`) that strictly defines the following array of blocks coming from a headless CMS:
+- `hero` block (eyebrow, title, subtitle, backgroundImage, cta). 
+- `pricing` block (title, subtitle, currency, plans—including items, prices, features, and highlighted tags). 
+- `productGrid` block (title, an array of products—including specs, ratings, and stock levels). 
+- A generic/unknown block (e.g., `slider`).
+3. A `data.json` file that exports this exact structure.
+generate the directory structure and the code for `src/domain/cms.ts`, using Discriminated Unions for each block.
+```
+
+#### 2. UI primitives
+
+```text
+Following the principles of the Composition Pattern (avoiding "mega-components" and favoring the use of `children` and inversion of control), implement reusable UI primitives using Tailwind CSS in `src/components/ui/`:
+
+1. `Card.tsx`: using a compound component pattern:
+- `Card` (a container with an optional border and shadow)
+- `Card.Header` (for titles and subtitles)
+- `Card.Content` (a flexible body area)
+- `Card.Footer` (for actions or tags)
+2. `Badge.tsx`: for stock labels, categories, and highlighted (recommended) plans.
+3. `Button.tsx`: an accessible button component that supports various styles (primary, outline, ghost) and can function as a link—either via an `asChild` prop or by rendering an `<a>` tag.
+
+Ensure that the appropriate TypeScript types are exported for each subcomponent.
+```
+
+#### 3. Blocks and registry
+
+```text
+Now, implement the block components and the resolution registry in `src/components/blocks/`:
+
+1. `HeroBlock.tsx`: Consumes `hero` props using visual composition.
+2. `PricingBlock.tsx`: Renders plans from the CMS by composing the previously created `Card`, `Badge`, and `Button` primitives.
+3. `ProductGridBlock.tsx`: Renders a product grid—displaying price, stock badges, and specifications—using composition.
+4. `UnknownBlock.tsx`: A safe visual fallback that:
+- In development (`process.env.NODE_ENV !== 'production'`), displays a friendly yellow alert indicating that the block `type` is not supported.
+- In production, ensures the application does not break (returns `null` or an accessible, unobtrusive fallback).
+5. `registry.ts`:
+- A `Record<string, ComponentType<any>>` dictionary mapping only `hero`, `pricing`, and `productGrid`.
+- Important note: Do NOT register `slider`, so that the CMS fallback can be tested.
+- A `resolveBlock(type: string): ComponentType<any>` function that returns `UnknownBlock` if the type does not exist in the map.
+```
+
+Answer to a clarifying question: a `BlockRegistry` mapped over `KnownBlockType` instead of `Record<string, ComponentType<any>>` (see the deviations table).
+
+#### 4. Rendering engine
+
+```text
+Implement the rendering engine and error handling in `src/components/renderer/`:
+
+1. `BlockErrorBoundary.tsx`:
+- A React class component (`'use client'`) that catches exceptions during the rendering of a corrupted or broken block.
+- If a block fails at runtime, it displays a contained error message in development mode—or nothing at all in production—ensuring that the page does not go blank and that other blocks remain unaffected.
+2. `PageBuilder.tsx`:
+- Receives a list of typed blocks: `blocks: CMSBlock[]`.
+- If the array is empty or invalid, it renders a safe, empty container.
+- It iterates through the blocks and dynamically renders each component wrapped in its own `BlockErrorBoundary`, passing down props and assigning a unique key by combining `block.id` with the index.
+3. Update `src/app/page.tsx` to import `data.json` and pass it to `<PageBuilder blocks={cmsData} />`.
+```
+
+#### 5. PageBuilder test suite
+
+```text
+Generate a comprehensive unit test suite using Vitest and `@testing-library/react` for `PageBuilder.tsx`, located at `src/components/renderer/PageBuilder.test.tsx`.
+
+The suite must cover the following:
+1. Resilience to unknown component types: Pass an array containing a `slider` block (or another unregistered type) and verify that:
+- The application does NOT throw any exceptions (`expect(...).not.toThrow()`).
+- The `UnknownBlock` fallback component renders correctly, identifying the missing type.
+- Valid blocks appearing before and after the unknown one (e.g., `hero`, `pricing`, `productGrid`) continue to render in the DOM, unaffected.
+2. "Happy path" for valid blocks: Verify that `hero`, `pricing`, and `productGrid` render their key content (titles, prices, cards).
+3. Edge cases: Verify behavior when provided with an empty array `[]` or malformed elements.
+4. Block Error Boundary: Simulate a registered component that throws an error during rendering, and verify that the remaining blocks do not fail.
+
+Include the necessary configuration in `vitest.config.ts` and the required scripts in `package.json`.
+```
+
+#### 6. Docker deployment
+
+```text
+Create the Docker deployment configuration for this Next.js (App Router) application:
+
+1. `next.config.js`: add `output: 'standalone'`.
+2. `Dockerfile`: an optimized multi-stage build using Node.js Alpine:
+- Stage 1: `deps` (install dependencies using `frozen-lockfile`). 
+- Stage 2: `builder` (build the application). 
+- Stage 3: `runner` (minimal production image, non-root user, exposes port 3000).
+3. `docker-compose.yml`: to launch the container locally using `docker compose up --build`, mapping port `3000:3000`.
+4. `.dockerignore`: to exclude `node_modules`, `.next`, `.git`, coverage, and tests.
+```
+
+#### 7. Prompt log
+
+```text
+Generate the content for the `PROMPT_LOG.md` file, ready for inclusion in the GitHub repository, with professional documentation covering:
+1. A summary table of the prompts used, the tool employed (Cursor/Claude/Gemini), and the objective of each.
+2. An explanation of design decisions:
+- Use of Clean Architecture and the Registry Pattern to adhere to the Open/Closed Principle.
+- Use of the composition pattern for UI primitives (`Card`, `Badge`).
+- Resilience against failures (`UnknownBlock` + `BlockErrorBoundary`).
+```
+
+#### 8. Assignment check
+
+The assignment text was pasted after the question.
+
+```text
+este proyecto cumple con
+
+Instruction: You are explicitly REQUIRED to use Cursor, Claude, Gemini or ChatGPT to complete this assignment. You must submit your code AND a 'Prompt Log' showing how you directed the AI.
+
+The Task: Build a Dynamic Page Renderer using Next.js/Vue/React (App Router).
+
+1. The Data: Create a hardcoded data.json
+file that mimics a Headless CMS response. It should contain an array of objects, e.g.,
+[{ type: "hero", props: {...}}, { type: "pricing", props: {...}}]
+
+2. The Logic: Build a PageBuilder component that iterates through this array and renders the correct component.
+
+3. The AI Twist: Use AI to generate a unit test suite for your PageBuilder that tests for an "Unknown Component Type" (e.g., if the JSON asks for a slider but you don't have that component, the app should not crash).
+
+Deploy your project in Docker:
+- Add your dockerfile/docker compose to the project.
+
+ ?
+```
+
+#### 9. Publish to GitHub
+
+```text
+sube el repoa git
+```
+
+Answers to clarifying questions: create a new public repository, and amend the uncommitted `PROMPT_LOG.md` edit into the prompt-log commit before the first push.
+
+#### 10. Close the open gaps
+
+```text
+hazlo
+```
+
+#### Discarded first attempt
+
+An earlier session started the project with Zod schemas, an `example.json` file and a `<Product>` compound component. Its output was discarded before the first commit, so none of it is in the history. Its prompts are kept here for completeness:
+
+```text
+create a Nextjs app using typescript and tailwind
+```
+
+```text
+add vitest for testing
+```
+
+```text
+Create src/data/data.json that mimics a Headless CMS page response: a top-level array of blocks shaped { "id": string, "type": string, "props": {...} }. Include, in this order: a "hero" block, a "pricing" block with 3 tiers, a "productGrid" block whose props.products reuse the 3 products from src/data/example.json, and a "slider" block that we will intentionally NOT implement.
+```
+
+```text
+In types/blocks.ts define Zod schemas for each block's props: HeroProps, PricingProps, and ProductGridProps (reuse ProductSchema from types/cms.ts). Also define a loose BlockEnvelopeSchema { id: string, type: string, props: unknown }. Do NOT use a discriminated union over all block types: unknown types must pass the envelope validation so the page can skip them instead of failing. Never call .parse at module level; always use safeParse, you have to based in data/example.json
+```
+
+```text
+Create presentational components pageBuilder/blocks/: Hero.tsx, Pricing.tsx and ProductGrid.tsx. ProductGrid must reuse the existing compound <Product> component. Each component receives only its typed props, does no data loading, and is styled with Tailwind.
+```
 
 ## Design decisions
 
