@@ -1,0 +1,137 @@
+{
+  "slug": "home",
+  "title": "Home",
+  "blocks": [
+    {
+      "id": "blk_hero_01",
+      "type": "hero",
+      "props": {
+        "eyebrow": "New season",
+        "title": "Build pages without shipping code",
+        "subtitle": "Compose landing pages from reusable blocks managed in your CMS.",
+        "backgroundImage": {
+          "src": "/images/hero.jpg",
+          "alt": "Abstract gradient background",
+          "width": 1920,
+          "height": 1080
+        },
+        "cta": {
+          "label": "Get started",
+          "href": "/signup",
+          "variant": "primary"
+        }
+      }
+    },
+    {
+      "id": "blk_pricing_01",
+      "type": "pricing",
+      "props": {
+        "title": "Simple pricing",
+        "subtitle": "Pick the plan that fits your team.",
+        "currency": "USD",
+        "plans": [
+          {
+            "id": "plan_starter",
+            "name": "Starter",
+            "description": "For individuals and side projects.",
+            "prices": { "monthly": 0, "yearly": 0 },
+            "features": [
+              { "label": "1 project", "included": true },
+              { "label": "Community support", "included": true },
+              { "label": "Custom domains", "included": false }
+            ],
+            "cta": { "label": "Start free", "href": "/signup?plan=starter", "variant": "secondary" },
+            "highlighted": false
+          },
+          {
+            "id": "plan_pro",
+            "name": "Pro",
+            "description": "For growing teams that ship often.",
+            "prices": { "monthly": 2900, "yearly": 29000 },
+            "features": [
+              { "label": "Unlimited projects", "included": true },
+              { "label": "Priority support", "included": true },
+              { "label": "Custom domains", "included": true }
+            ],
+            "cta": { "label": "Go Pro", "href": "/signup?plan=pro", "variant": "primary" },
+            "highlighted": true,
+            "tag": "Most popular"
+          },
+          {
+            "id": "plan_enterprise",
+            "name": "Enterprise",
+            "description": "For organizations with advanced needs.",
+            "prices": { "monthly": 9900, "yearly": 99000 },
+            "features": [
+              { "label": "Unlimited projects", "included": true },
+              { "label": "Dedicated support", "included": true },
+              { "label": "SSO and audit logs", "included": true }
+            ],
+            "cta": { "label": "Contact sales", "href": "/contact", "variant": "secondary" },
+            "highlighted": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "blk_products_01",
+      "type": "productGrid",
+      "props": {
+        "title": "Featured products",
+        "products": [
+          {
+            "id": "prd_headphones",
+            "name": "Studio Headphones",
+            "href": "/products/studio-headphones",
+            "image": { "src": "/images/headphones.jpg", "alt": "Black over-ear headphones", "width": 800, "height": 800 },
+            "price": { "amount": 19900, "currency": "USD" },
+            "specs": [
+              { "label": "Battery", "value": "30 h" },
+              { "label": "Weight", "value": "250 g" }
+            ],
+            "rating": { "average": 4.7, "count": 1284 },
+            "stock": { "status": "inStock", "quantity": 120 }
+          },
+          {
+            "id": "prd_keyboard",
+            "name": "Mechanical Keyboard",
+            "href": "/products/mechanical-keyboard",
+            "image": { "src": "/images/keyboard.jpg", "alt": "Compact mechanical keyboard", "width": 800, "height": 800 },
+            "price": { "amount": 12900, "currency": "USD" },
+            "specs": [
+              { "label": "Layout", "value": "75%" },
+              { "label": "Switches", "value": "Hot-swappable" }
+            ],
+            "rating": { "average": 4.5, "count": 642 },
+            "stock": { "status": "lowStock", "quantity": 4 }
+          },
+          {
+            "id": "prd_monitor",
+            "name": "4K Monitor",
+            "href": "/products/4k-monitor",
+            "image": { "src": "/images/monitor.jpg", "alt": "27-inch monitor on a desk", "width": 800, "height": 800 },
+            "price": { "amount": 44900, "currency": "USD" },
+            "specs": [
+              { "label": "Size", "value": "27 in" },
+              { "label": "Refresh rate", "value": "144 Hz" }
+            ],
+            "rating": { "average": 4.8, "count": 317 },
+            "stock": { "status": "outOfStock" }
+          }
+        ]
+      }
+    },
+    {
+      "id": "blk_slider_01",
+      "type": "slider",
+      "props": {
+        "autoplay": true,
+        "intervalMs": 5000,
+        "slides": [
+          { "image": "/images/slide-1.jpg", "caption": "Summer collection" },
+          { "image": "/images/slide-2.jpg", "caption": "Free shipping over $50" }
+        ]
+      }
+    }
+  ]
+}
