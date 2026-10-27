@@ -133,6 +133,25 @@ Out of scope:
   - The only gap is `stockBadge.ts` lines 20-21: the exhaustive `never` default, which the compiler makes unreachable. `cms.ts` is types only (0/0).
 - Note: Vitest 5 detects AI-agent sessions (`AI_AGENT`, `CLAUDECODE`) and then forces `skipFull: true` on the `text` reporter, which hides fully covered files such as `PageBuilder.tsx`. In a normal terminal the table lists every file. The numbers above come from a run with those variables unset.
 
+### Commits and final checks
+
+| Task | Commit | Message |
+| --- | --- | --- |
+| T1 | `5408523` | `fix(renderer): skip malformed blocks and name unregistered types` |
+| T2 | `46d5a0b` | `test(renderer): expand PageBuilder suite across resilience, happy path, edge cases and boundary` |
+| T3 | `1b11435` | `chore(test): add v8 coverage and test:coverage script` |
+
+- On `1b11435`, all four checks passed:
+  - `pnpm test`: 19 files, 212 tests;
+  - `pnpm typecheck`;
+  - `pnpm build`: static `/`;
+  - `pnpm test:coverage`: same totals as T3.
+- Size: 588 authored changed lines (487 added, 101 removed), not counting the lockfile and this document. 408 of them are in `PageBuilder.test.tsx`. That beats the 350-line forecast and the 400-line budget of about 400, so `ask-on-risk` applies before any pull request.
+- RDD: unavailable (`gentle-ai` 1.49.0 has no `review` command). No review receipt exists.
+- Engram mirror: still pending; the server was disconnected for the whole run.
+
 ## Next step
 
-Final checks and evidence commit.
+- Decide the delivery strategy for the 588-line branch (`ask-on-risk`): one PR, or split the test expansion into its own slice.
+- Resync the Engram mirror `odd/page-builder-tests/tasks` once the server is reachable.
+- Optional: a parsed `UnknownBlock` that arrives raw as `type: 'unknown'` without `originalType` still renders `Unsupported block type: ""`. That case is out of this feature's scope.
