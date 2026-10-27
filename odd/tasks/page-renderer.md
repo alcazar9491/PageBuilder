@@ -49,7 +49,7 @@ Out of scope: Zod or deep prop validation, image assets under `public/`, and the
 - [x] T1: `isKnownBlockType` in `domain/`, with the registry reusing it, and `parseBlocks`. Test-first. Route: delegated (writer trigger, 2+ non-trivial files).
 - [x] T2: `BlockErrorBoundary`, test-first. Route: delegated.
 - [x] T3: `PageBuilder`, test-first. Route: delegated.
-- [ ] T4: `page.tsx` wiring, an updated page test, and a real Next.js check that a broken block is contained during SSR and in the browser. Route: delegated.
+- [x] T4: `page.tsx` wiring, an updated page test, and a real Next.js check that a broken block is contained during SSR and in the browser. Route: delegated. The browser half was not checked in a real browser (see Progress).
 
 ## Acceptance criteria
 
@@ -75,6 +75,14 @@ Out of scope: Zod or deep prop validation, image assets under `public/`, and the
   - Fix: a per-block `<Suspense fallback={null}>` inside the boundary. React's docs say server errors are contained only at the nearest `<Suspense>`, never by error boundaries. RED: a new Node-environment test (`PageBuilder.server.test.tsx`, `renderToReadableStream`) failed with `AssertionError: promise rejected "TypeError: Cannot read properties of null…" instead of resolving`. GREEN at 168/168.
   - After Suspense: `next dev` returned HTTP 200 with hero, products and the slider notice in the HTML, and the pricing slot as `<!--$!--><template data-dgst="4239901915" data-msg="Switched to client rendering because the server rendering errored: ...">`. The dynamic route under `next start` returned HTTP 200 with hero and products, and the pricing slot as `<!--$!--><template data-dgst="2466371693"></template><!--/$-->` (no message leaked).
   - Still failing by design: `next build` fails on the corrupted static route even with Suspense. Next 16.4.3 (`next/dist/server/app-render/app-render.js`, around line 1644) rethrows the first Server Component error during build-time prerender: "Build failures still throw, even if recovery produced a usable response." So bad bundled CMS data stops the build rather than shipping; containment applies to request-time renders.
+- T4 RED→GREEN: the new page test (4 cases) failed 4/4 against the placeholder page on RTL `getByRole` misses (`Unable to find an accessible element with the role "heading" and name "Build pages without shipping code"`); after wiring `parseBlocks(cmsData.blocks)` into `PageBuilder`, 171/171 pass and typecheck is clean.
+- T4 real app:
+  - `pnpm build`: exit 0, `○ /` prerendered as static.
+  - `next dev`: `GET /` returned HTTP 200 with the hero `<h1>Build pages without shipping code</h1>`, the plans (`Starter`, `Most popular`), the products (`Studio Headphones`, `4K Monitor`) and `<div role="status" ...>Unsupported block type: <code ...>&quot;<!-- -->slider<!-- -->&quot;</code>`; no `role="alert"`, no `__next_error__`. The check ran against the user's own `next dev` on port 3000; Next refuses a second dev server for the same directory, and that process was not stopped.
+  - `next start`: `GET /` returned HTTP 200 with the hero, plans and products, and no slider notice (production hides `UnknownBlock`).
+  - `/images/hero.jpg` returns 404: the images are not in `public/`, which is out of scope.
+  - The corrupted-block check is recorded under T3. It ran against the final `PageBuilder`, which T4 did not change.
+  - Not checked: a real browser. Client-side containment (the boundary catching the retried block after hydration) is covered by the jsdom tests only, and the SSR markers show the client-render hand-off.
 
 ## Next step
 
