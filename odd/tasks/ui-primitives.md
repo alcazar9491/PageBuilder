@@ -43,7 +43,7 @@ Out of scope: blocks, registry, renderer, data parser.
 - [x] T2: `cn` utility, test-first. Route: delegated.
 - [x] T3: `Badge`, test-first. Route: delegated.
 - [x] T4: `Button` with variants, sizes and `asChild`, test-first. Route: delegated.
-- [ ] T5: `Card` compound (`Header`, `Content`, `Footer`), test-first. Route: delegated.
+- [x] T5: `Card` compound (`Header`, `Content`, `Footer`), test-first. Route: delegated.
 
 ## Acceptance criteria
 
@@ -59,7 +59,9 @@ Out of scope: blocks, registry, renderer, data parser.
 - T2: RED (`Failed to resolve import "@/lib/cn"`), GREEN (3 `cn` tests passed, 4 total). `pnpm typecheck` clean.
 - T3: RED (`Failed to resolve import "@/components/ui/Badge"`), GREEN (10 `Badge` tests passed, 14 total). `pnpm typecheck` clean. Removed `src/components/ui/.gitkeep`.
 - T4: RED (`Failed to resolve import "@/components/ui/Button"`), GREEN (16 `Button` tests passed, 30 total, no React warnings). `pnpm typecheck` clean. Radix `Slot` only uses `useCallback` (via `useComposedRefs`), which the React server build provides, so `asChild` stays Server Component safe. Slot joins a child's own `className` without `tailwind-merge`, so pass overrides through `Button`'s `className`.
+- T5: RED (`Failed to resolve import "@/components/ui/Card"`), GREEN (10 `Card` tests passed, 40 total). `pnpm typecheck` clean.
+- RSC check (temporary, not committed): a server `page.tsx` rendering `Card` (dot notation), `Badge` and `Button asChild` around `next/link` built and prerendered as static; the HTML holds `<a class="inline-flex ... bg-indigo-600 ..." href="/signup">` with no `type`.
 
 ## Next step
 
-T5.
+Record task commit hashes.
