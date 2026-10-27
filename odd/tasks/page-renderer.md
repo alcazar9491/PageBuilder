@@ -47,7 +47,7 @@ Out of scope: Zod or deep prop validation, image assets under `public/`, and the
 ## Tasks
 
 - [x] T1: `isKnownBlockType` in `domain/`, with the registry reusing it, and `parseBlocks`. Test-first. Route: delegated (writer trigger, 2+ non-trivial files).
-- [ ] T2: `BlockErrorBoundary`, test-first. Route: delegated.
+- [x] T2: `BlockErrorBoundary`, test-first. Route: delegated.
 - [ ] T3: `PageBuilder`, test-first. Route: delegated.
 - [ ] T4: `page.tsx` wiring, an updated page test, and a real Next.js check that a broken block is contained during SSR and in the browser. Route: delegated.
 
@@ -68,6 +68,7 @@ Out of scope: Zod or deep prop validation, image assets under `public/`, and the
 
 - Engram mirror: pending (the server is disconnected).
 - T1 RED→GREEN: against stubs (`isKnownBlockType` always false, `parseBlocks` always `[]`), 12 of 38 new tests failed on `AssertionError` (e.g. `expected [] to deeply equal [ { id: 'blk_hero', …(2) } ]`); after implementing, 150/150 pass and `pnpm typecheck` is clean. The registry now re-exports the domain guard; its existing tests pass unchanged. `parseBlocks` holds the one documented `as KnownBlock` assertion, from an envelope annotated with `props: object` (a `Record<string, unknown>` source is not comparable to the props interfaces, TS2352).
+- T2 RED→GREEN: against a stub that rendered an empty `role="alert"` and logged nothing, 5 of 7 tests failed on jest-dom/`AssertionError` matchers (`toHaveTextContent`, `toBeEmptyDOMElement`, `toHaveBeenCalledWith`; React's own log was the only `console.error` call); after implementing, 157/157 pass and typecheck is clean. State is `{ hasError: false } | { hasError: true; error: unknown }` instead of `{ error: unknown | null }`, so a thrown `null` still shows the fallback (covered by a test).
 
 ## Next step
 
