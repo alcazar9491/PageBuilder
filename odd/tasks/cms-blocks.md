@@ -41,7 +41,7 @@ Out of scope: `PageBuilder`, `BlockErrorBoundary`, the data parser, and image fi
 ## Tasks
 
 - [x] T1: `formatMoney` in `src/lib/format.ts`, test-first. Route: delegated (writer trigger, 2+ non-trivial files).
-- [ ] T2: `CtaLink` and `HeroBlock`, test-first. Route: delegated.
+- [x] T2: `CtaLink` and `HeroBlock`, test-first. Route: delegated.
 - [ ] T3: `PricingBlock`, test-first. Route: delegated.
 - [ ] T4: `getStockBadge` and `ProductGridBlock`, test-first. Route: delegated.
 - [ ] T5: `UnknownBlock`, with dev and production behavior, test-first. Route: delegated.
@@ -60,7 +60,8 @@ Out of scope: `PageBuilder`, `BlockErrorBoundary`, the data parser, and image fi
 - Engram mirror: pending (the server is disconnected).
 - Next 16 `next/image` (context7, `/vercel/next.js/v16.2.9`): `priority` is deprecated; the hero uses `preload`.
 - T1: RED: 5/5 failed against a stub returning `''` (`expected '' to be '$29.00'`). GREEN: 5/5 pass; `pnpm typecheck` clean.
+- T2: RED: 10/10 failed against `null` stubs (`Unable to find an accessible element with the role "heading" and name "Build pages without shipping code"`). GREEN: 10/10 pass; `next/image` and `next/link` render in jsdom without mocks.
 
 ## Next step
 
-T2.
+T3.
