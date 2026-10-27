@@ -40,7 +40,7 @@ Out of scope: blocks, registry, renderer, data parser.
 ## Tasks
 
 - [x] T1: Scaffold the toolchain and confirm `pnpm test`, `pnpm typecheck` and `pnpm build` run. Route: delegated (writer trigger, install/build execution).
-- [ ] T2: `cn` utility, test-first. Route: delegated.
+- [x] T2: `cn` utility, test-first. Route: delegated.
 - [ ] T3: `Badge`, test-first. Route: delegated.
 - [ ] T4: `Button` with variants, sizes and `asChild`, test-first. Route: delegated.
 - [ ] T5: `Card` compound (`Header`, `Content`, `Footer`), test-first. Route: delegated.
@@ -56,7 +56,8 @@ Out of scope: blocks, registry, renderer, data parser.
 - Baseline: `git init -b main`.
 - Engram mirror: pending (the server is disconnected).
 - T1: manual setup with `pnpm add` (no `create-next-app`; its templates were read for reference only). Versions: next 16.4.3, react 19.3.1, tailwindcss 4.3.3, vitest 5.0.5, typescript 7.0.2 (Next 16.4 type-checks through the `tsc` CLI by default, so TS 7 works). Added `@testing-library/dom` (required peer of `@testing-library/react` 16). Build scripts: pnpm 11 `allowBuilds` in `pnpm-workspace.yaml` (`sharp: true`). Toolchain smoke test `src/app/page.test.tsx`: RED (`Failed to resolve import "@/app/page"`), GREEN (1 test passed). `pnpm typecheck` clean (`src/domain/cms.ts` needed no change). `pnpm build` compiled, type-checked and prerendered `/`.
+- T2: RED (`Failed to resolve import "@/lib/cn"`), GREEN (3 `cn` tests passed, 4 total). `pnpm typecheck` clean.
 
 ## Next step
 
-T2.
+T3.
