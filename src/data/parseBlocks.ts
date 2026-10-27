@@ -1,5 +1,5 @@
 import type { Block, KnownBlock, KnownBlockType } from '@/domain/cms';
-import { isKnownBlockType } from '@/domain/blockTypes';
+import { isBlockEnvelope, isKnownBlockType } from '@/domain/blockTypes';
 
 /**
  * Maps raw CMS blocks to the domain `Block[]`. This is the single trust
@@ -25,12 +25,14 @@ export function parseBlocks(raw: unknown): Block[] {
 }
 
 function parseBlock(entry: unknown): Block | null {
-  if (!isPlainObject(entry)) {
+  // The renderer applies the same envelope guard, so both layers agree on
+  // what a block is. Only the data layer also requires an object `props`.
+  if (!isBlockEnvelope(entry) || !('props' in entry)) {
     return null;
   }
 
   const { id, type, props } = entry;
-  if (!isNonEmptyString(id) || !isNonEmptyString(type) || !isPlainObject(props)) {
+  if (!isPlainObject(props)) {
     return null;
   }
 
@@ -51,8 +53,4 @@ function parseBlock(entry: unknown): Block | null {
 /** A non-null, non-array object, as JSON produces for `{ ... }`. */
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function isNonEmptyString(value: unknown): value is string {
-  return typeof value === 'string' && value.length > 0;
 }

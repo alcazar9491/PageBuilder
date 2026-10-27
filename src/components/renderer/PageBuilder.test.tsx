@@ -154,4 +154,42 @@ describe('PageBuilder', () => {
       'Featured products',
     ]);
   });
+
+  it.each([
+    ['null', null],
+    ['undefined', undefined],
+    ['a number', 42],
+    ['a string', 'hero'],
+    ['an entry without an id', { type: 'hero', props: hero.props }],
+    ['an entry with a non-string id', { id: 7, type: 'hero', props: hero.props }],
+    ['an entry with an empty id', { id: '', type: 'hero', props: hero.props }],
+    ['an entry without a type', { id: 'blk_typeless', props: hero.props }],
+  ])('skips %s while its valid siblings render', (_label, entry) => {
+    // The cast simulates an untyped entry reaching the component at runtime.
+    const blocks = [hero, entry, pricing] as unknown as readonly Block[];
+
+    expect(() => render(<PageBuilder blocks={blocks} />)).not.toThrow();
+    expect(blockHeadings(document.body)).toEqual([
+      'Build pages without shipping code',
+      'Simple pricing',
+    ]);
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('names a raw unregistered type that bypassed parseBlocks', () => {
+    // The cast simulates a raw CMS entry that never went through `parseBlocks`.
+    const rawSlider = {
+      id: 'blk_slider_raw',
+      type: 'slider',
+      props: { autoplay: true },
+    } as unknown as Block;
+
+    expect(() => render(<PageBuilder blocks={[hero, rawSlider, pricing]} />)).not.toThrow();
+    expect(screen.getByRole('status')).toHaveTextContent('Unsupported block type: "slider".');
+    expect(blockHeadings(document.body)).toEqual([
+      'Build pages without shipping code',
+      'Simple pricing',
+    ]);
+  });
 });
