@@ -1,0 +1,74 @@
+# Feature: Page renderer and block error isolation
+
+## Objective
+
+Render a CMS page from `data.json`. `PageBuilder` resolves each block through the registry, and each block gets its own `BlockErrorBoundary`, so one broken block never blanks the page.
+
+## Problem / Why
+
+Blocks and the registry exist, but nothing composes them into a page. CMS data is untrusted. Unknown types must hit the fallback, and a corrupted block must be contained.
+
+## Scope
+
+- `src/domain/blockTypes.ts`: `isKnownBlockType`, a pure and exhaustive guard. The registry reuses it.
+- `src/data/parseBlocks.ts`: raw CMS JSON to `Block[]`.
+- `src/components/renderer/BlockErrorBoundary.tsx` (client class component).
+- `src/components/renderer/PageBuilder.tsx` (server component).
+- `src/app/page.tsx`: wiring.
+
+Out of scope: Zod or deep prop validation, image assets under `public/`, and the `useId` heading-id fix.
+
+## Decisions
+
+- `data.json` cannot go straight into `PageBuilder`:
+  - A JSON import widens `"type": "hero"` to `string`, so it does not type-check as `Block[]` without a cast.
+  - `slider` must become `{ type: 'unknown', originalType: 'slider' }`, or `UnknownBlock` cannot name the type.
+  - So `page.tsx` passes `parseBlocks(cmsData.blocks)`. This is the single trust boundary.
+- `parseBlocks` validates only the envelope (`id`, `type`, object `props`). It does not validate the shape of the props. A known block with corrupted props reaches render, and `BlockErrorBoundary` contains it, as the user's design intends.
+- The data layer must not import presentation code. The known-type guard therefore lives in `domain/`, not in `components/blocks/registry.ts`.
+- The prop type is `blocks: readonly Block[]`. `Block` is the existing domain name for the user's `CMSBlock`.
+- Keys are `${block.id}-${index}`, per the user's spec. This tolerates duplicate CMS ids. Moving a block remounts it, which is harmless for static CMS content.
+- The boundary shows a contained `role="alert"` outside production, and renders nothing in production.
+
+## TDD
+
+- Mode: strict, on.
+- Source: user global `~/.claude/CLAUDE.md`.
+- Runner: Vitest (`pnpm test`).
+- RED must be a failed assertion against a stub.
+
+## Delivery
+
+- Branch: `feat/page-renderer`, stacked on `feat/cms-blocks` (no remote yet).
+- Strategy: `ask-on-risk` (default).
+- Forecast: about 550 authored lines. This is over the 400-line budget, so PR slicing is deferred until a remote exists.
+- RDD: unavailable. `gentle-ai` 1.49.0 has no `review` command.
+
+## Tasks
+
+- [x] T1: `isKnownBlockType` in `domain/`, with the registry reusing it, and `parseBlocks`. Test-first. Route: delegated (writer trigger, 2+ non-trivial files).
+- [ ] T2: `BlockErrorBoundary`, test-first. Route: delegated.
+- [ ] T3: `PageBuilder`, test-first. Route: delegated.
+- [ ] T4: `page.tsx` wiring, an updated page test, and a real Next.js check that a broken block is contained during SSR and in the browser. Route: delegated.
+
+## Acceptance criteria
+
+- `parseBlocks`:
+  - non-array input returns `[]`;
+  - invalid envelopes are dropped;
+  - `slider` becomes `UnknownBlock` data;
+  - prototype keys are treated as unknown.
+- A block that throws while rendering shows a contained alert outside production and nothing in production. Its siblings still render.
+- Empty or invalid `blocks` render an empty container.
+- In the real app, the home page renders hero, pricing and products, plus the dev notice for `slider`.
+- `pnpm test`, `pnpm typecheck` and `pnpm build` pass.
+- One Conventional Commit per task, with no AI attribution.
+
+## Progress / Evidence
+
+- Engram mirror: pending (the server is disconnected).
+- T1 RED→GREEN: against stubs (`isKnownBlockType` always false, `parseBlocks` always `[]`), 12 of 38 new tests failed on `AssertionError` (e.g. `expected [] to deeply equal [ { id: 'blk_hero', …(2) } ]`); after implementing, 150/150 pass and `pnpm typecheck` is clean. The registry now re-exports the domain guard; its existing tests pass unchanged. `parseBlocks` holds the one documented `as KnownBlock` assertion, from an envelope annotated with `props: object` (a `Record<string, unknown>` source is not comparable to the props interfaces, TS2352).
+
+## Next step
+
+T1.

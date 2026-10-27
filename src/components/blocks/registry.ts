@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react';
+import { isKnownBlockType } from '@/domain/blockTypes';
 import type { BlockPropsMap, KnownBlockType } from '@/domain/cms';
 import { HeroBlock } from '@/components/blocks/HeroBlock';
 import { PricingBlock } from '@/components/blocks/PricingBlock';
@@ -24,12 +25,12 @@ export const blockRegistry: BlockRegistry = {
 };
 
 /**
- * Narrows a CMS type string to a registered block type. `Object.hasOwn`
- * ignores inherited keys such as `constructor`, `toString` and `__proto__`.
+ * The guard lives in `domain/` so the data layer can use it without importing
+ * components. Re-exported to keep the registry's public API unchanged. The
+ * `BlockRegistry` annotation lists every `KnownBlockType`, so a type the guard
+ * accepts always has a registered component.
  */
-export function isKnownBlockType(type: string): type is KnownBlockType {
-  return Object.hasOwn(blockRegistry, type);
-}
+export { isKnownBlockType };
 
 /** Returns the component registered for a known block type, typed with its props. */
 export function resolveBlock<K extends KnownBlockType>(type: K): BlockRegistry[K];
